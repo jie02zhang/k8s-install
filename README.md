@@ -280,12 +280,11 @@ cat /srv/salt/k8s/templates/kube-api-server/kubernetes-csr.json.template
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-    "{{ NODE_IP }}",
-    "{{ CLUSTER_KUBERNETES_SVC_IP }}",
-    "172.18.1.9", #master02
-    "172.18.1.10", #master01
-    "172.18.1.8", #master03
-    "172.18.1.88", #masterVIP 
+    "172.18.1.7",
+    "172.18.1.9",
+    "172.18.1.10",
+    "172.18.1.8",
+    "172.18.1.88",
     "172.18.1.11",
     "172.18.1.12",
     "kubernetes",
