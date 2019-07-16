@@ -123,7 +123,7 @@ sysctl -p
 
 2. 设置/etc/hosts保证主机名能够解析    一定要每个节点都设置hosts ***
 ```
-cat >>/etc/hosts<<-EOF
+cat >>/etc/hosts<< EOF
 192.168.137.162 etcd1
 192.168.137.163 etcd2
 192.168.137.164 etcd3
