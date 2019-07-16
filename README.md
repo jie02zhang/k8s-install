@@ -170,7 +170,7 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 2.2 获取本项目代码，并放置在/srv目录
 ```
 [root@k8s-master01 ~]# git clone https://github.com/weiyanwei412/k8s-install.git
-[root@k8s-master01 ~]# cd salt-kubernetes/
+[root@k8s-master01 ~]# cd k8s-install
 [root@k8s-master01 ~]# mv * /srv/
 [root@k8s-master01 srv]# /bin/cp /srv/roster /etc/salt/roster
 [root@k8s-master01 srv]# /bin/cp /srv/master /etc/salt/master
@@ -203,7 +203,7 @@ drwxr-xr-x. 3 root root  17 Jun  3 19:12 k8s-v1.12.3
 ```
 [root@k8s-master01 ~]# vim /etc/salt/roster 
 k8s-master01:
-    host: 172.18.1.10
+    host: 192.168.137.161
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -211,7 +211,7 @@ k8s-master01:
       grains:
          k8s-role: master
 k8s-node1:
-    host: 172.18.1.11
+    host: 192.168.137.165
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -219,7 +219,7 @@ k8s-node1:
       grains:
          k8s-role: node
 k8s-node2:
-    host: 172.18.1.12
+    host: 192.168.137.166
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -227,7 +227,7 @@ k8s-node2:
       grains:
          k8s-role: node
 etcd1:
-    host: 172.18.1.7
+    host: 192.168.137.162
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -236,7 +236,7 @@ etcd1:
          etcd-role: node
          etcd-name: etcd-node1
 etcd2:
-    host: 172.18.1.8
+    host: 192.168.137.163
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -245,7 +245,7 @@ etcd2:
          etcd-role: node
          etcd-name: etcd-node2
 etcd3:
-    host: 172.18.1.9
+    host: 192.168.137.164
     user: root
     port: 22
     priv: /root/.ssh/id_rsa
@@ -260,16 +260,16 @@ etcd3:
 ```
 [root@k8s-master01 ~]# vim /srv/pillar/k8s.sls
 #设置Master的VIP地址(必须修改)
-MASTER_VIP: "172.18.1.88"
+MASTER_VIP: "192.168.137.88"
 
 #设置Master的IP地址(必须修改)
-MASTER_IP: "172.18.1.10"
+MASTER_IP: "192.168.137.161"
 
 #设置ETCD集群访问地址（必须修改）
-ETCD_ENDPOINTS: "https://172.18.1.7:2379,https://172.18.1.8:2379,https://172.18.1.9:2379"
+ETCD_ENDPOINTS: "https://192.168.137.162:2379,https://192.168.137.163:2379,https://192.168.137.164:2379"
 
 #设置ETCD集群初始化列表（必须修改）
-ETCD_CLUSTER: "etcd-node1=https://172.18.1.7:2380,etcd-node2=https://172.18.1.8:2380,etcd-node3=https://172.18.1.9:2380"
+ETCD_CLUSTER: "etcd-node1=https://192.168.137.162:2380,etcd-node2=https://192.168.137.163:2380,etcd-node3=https://192.168.137.164:2380"
 
 #通过Grains FQDN自动获取本机IP地址，请注意保证主机名解析到本机IP地址
 NODE_IP: {{ grains['fqdn_ip4'][0] }}
@@ -304,13 +304,13 @@ cat /srv/salt/k8s/templates/kube-api-server/kubernetes-csr.json.template
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-    "172.18.1.7",
-    "172.18.1.9",
-    "172.18.1.10",
-    "172.18.1.8",
-    "172.18.1.88",
-    "172.18.1.11",
-    "172.18.1.12",
+    "192.168.137.161",
+    "192.168.137.162",
+    "192.168.137.163",
+    "192.168.137.88",
+    "192.168.137.164",
+    "192.168.137.165",
+    "192.168.137.166",
     "kubernetes",
     "kubernetes.default",
     "kubernetes.default.svc",
