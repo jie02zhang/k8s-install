@@ -50,8 +50,9 @@
 ## 0.系统初始化(必备)
 1. 设置主机名！！！ 
 ```
-[root@k8s-master ~]# cat /etc/hostname 
-k8s-master
+hostnamectl set-hostname k8s-master01
+[root@k8s-master01 ~]# cat /etc/hostname 
+k8s-master01
 
 [root@k8s-node1 ~]# cat /etc/hostname 
 k8s-node1
@@ -72,7 +73,7 @@ etcd3
 ```
 
 ```shell
-# For more information, see sysctl.conf(5) and sysctl.d(5).
+cat > /etc/sysctl.conf << EOF
 net.ipv6.conf.all.disable_ipv6 = 1
 net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
@@ -87,37 +88,58 @@ net.ipv4.conf.default.rp_filter=0
 net.ipv4.conf.default.arp_announce = 2
 net.ipv4.conf.lo.arp_announce=2
 net.ipv4.conf.all.arp_announce=2
-
-
-# see details in https://help.aliyun.com/knowledge_detail/41334.html
+#
+#
+# # see details in https://help.aliyun.com/knowledge_detail/41334.html
 net.ipv4.tcp_max_tw_buckets = 5000
 net.ipv4.tcp_syncookies = 1
 net.ipv4.tcp_max_syn_backlog = 1024
 net.ipv4.tcp_synack_retries = 2
 kernel.sysrq = 1
-
-#iptables透明网桥的实现
-# NOTE: kube-proxy 要求 NODE 节点操作系统中要具备 /sys/module/br_netfilter 文件，而且还要设置 bridge-nf-call-iptables=1，如果不满足要求，那么 kube-proxy 只是将检查信息记录到日志中，kube-proxy 仍然会正常运行，但是这样通过 Kube-proxy 设置的某些 iptables 规则就不会工作。
+#
+# #iptables透明网桥的实现
+# # NOTE: kube-proxy 要求 NODE 节点操作系统中要具备 /sys/module/br_netfilter 文件，而且还要设置 bridge-nf-call-iptables=1，如果不满足要
+求，那么 kube-proxy 只是将检查信息记录到日志中，kube-proxy 仍然会正常运行，但是这样通过 Kube-proxy 设置的某些 iptables 规则就不会工作。
 
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-arptables = 1
-```
+EOF
+
+cat > /etc/rc.sysinit << EOF
+#!/bin/bash
+for file in /etc/sysconfig/modules/*.modules ; do
+[ -x $file ] && $file
+done
+EOF
+cat > /etc/sysconfig/modules/br_netfilter.modules << EOF
+modprobe br_netfilter
+EOF
+chmod 755 /etc/sysconfig/modules/br_netfilter.modules
+lsmod |grep br_netfilter
+modprobe br_netfilter
+sysctl -p
+
 
 2. 设置/etc/hosts保证主机名能够解析    一定要每个节点都设置hosts ***
 ```
 cat >>/etc/hosts<<-EOF
-172.18.1.7 etcd1
-172.18.1.8 etcd2
-172.18.1.9 etcd3
-172.18.1.10 k8s-master01
-172.18.1.11 k8s-node1
-172.18.1.12 k8s-node2
+192.168.137.162 etcd1
+192.168.137.163 etcd2
+192.168.137.164 etcd3
+192.168.137.161 k8s-master01
+192.168.137.165 k8s-node1
+192.168.137.166 k8s-node2
 EOF
 
 
 ```
 3. 关闭SELinux和防火墙
+systemctl stop firewalld
+systemctl disable firewalld
+setenforce 0
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+
 
 4.以上必备条件必须严格检查，否则，一定不会部署成功！
 
