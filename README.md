@@ -143,7 +143,7 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 ```
 
 4.以上必备条件必须严格检查，否则，一定不会部署成功！
-```
+
 
 ## 1.设置部署节点到其它所有节点的SSH免密码登录（包括本机）
 ```
