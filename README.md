@@ -48,6 +48,7 @@
   ![架构图](https://github.com/weiyanwei412/k8s-install/blob/master/docs/k8s-new.png)
   
 ## 0.系统初始化(必备)
+
 1. 设置主机名！！！ 
 ```
 hostnamectl set-hostname k8s-master01
@@ -68,8 +69,6 @@ etcd2
 
 [root@etcd3 ~]# cat /etc/hostname 
 etcd3
-
-
 ```
 
 ```shell
@@ -119,29 +118,32 @@ chmod 755 /etc/sysconfig/modules/br_netfilter.modules
 lsmod |grep br_netfilter
 modprobe br_netfilter
 sysctl -p
-
+```
 
 2. 设置/etc/hosts保证主机名能够解析    一定要每个节点都设置hosts ***
 ```
-cat >>/etc/hosts<< EOF
-192.168.137.162 etcd1
-192.168.137.163 etcd2
-192.168.137.164 etcd3
-192.168.137.161 k8s-master01
-192.168.137.165 k8s-node1
-192.168.137.166 k8s-node2
+cat > /etc/hosts << EOF 
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.137.162 etcd1 
+192.168.137.163 etcd2 
+192.168.137.164 etcd3 
+192.168.137.161 k8s-master01 
+192.168.137.165 k8s-node1 
+192.168.137.166 k8s-node2 
 EOF
-
-
 ```
+
 3. 关闭SELinux和防火墙
+```
 systemctl stop firewalld
 systemctl disable firewalld
 setenforce 0
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-
+```
 
 4.以上必备条件必须严格检查，否则，一定不会部署成功！
+```
 
 ## 1.设置部署节点到其它所有节点的SSH免密码登录（包括本机）
 ```
